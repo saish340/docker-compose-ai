@@ -1,4 +1,4 @@
-
+# CI/CD automatic deployment test
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from sklearn.datasets import load_iris
