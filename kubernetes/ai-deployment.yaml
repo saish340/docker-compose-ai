@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iris-ai-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iris-ai
+  template:
+    metadata:
+      labels:
+        app: iris-ai
+    spec:
+      containers:
+        - name: iris-ai-container
+          image: iris-ai-model:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          env:
+            - name: MONGO_URL
+              value: "mongodb://mongodb:27017/"

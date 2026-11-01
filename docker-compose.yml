@@ -1,0 +1,42 @@
+
+services:
+
+  # AI Model Service
+  ai-model:
+    build: ./ai-model
+    container_name: iris-ai-model
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # MongoDB Database Service
+  mongodb:
+    image: mongo:7.0
+    container_name: iris-mongodb
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Frontend Service
+  frontend:
+    build: ./frontend
+    container_name: iris-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - ai-model
+    restart: unless-stopped
+
+# Persistent database storage
+volumes:
+  mongo-data:

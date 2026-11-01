@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Iris Flower Prediction</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef2f7;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            max-width: 450px;
+            margin: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #cccccc;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 8px;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 12px 25px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>AI Iris Flower Prediction</h2>
+
+    <p>Enter flower measurements</p>
+
+    <input id="f1" type="number" step="any"
+           placeholder="Sepal Length" value="5.1">
+
+    <input id="f2" type="number" step="any"
+           placeholder="Sepal Width" value="3.5">
+
+    <input id="f3" type="number" step="any"
+           placeholder="Petal Length" value="1.4">
+
+    <input id="f4" type="number" step="any"
+           placeholder="Petal Width" value="0.2">
+
+    <br><br>
+
+    <button onclick="predict()">Predict Flower</button>
+
+    <div id="result"></div>
+
+    <h3>Prediction History</h3>
+    <button onclick="loadHistory()">View History</button>
+    <div id="history"></div>
+
+</div>
+
+<script>
+async function predict() {
+
+    const features = [
+        Number(document.getElementById("f1").value),
+        Number(document.getElementById("f2").value),
+        Number(document.getElementById("f3").value),
+        Number(document.getElementById("f4").value)
+    ];
+
+    if (features.some(x => !Number.isFinite(x))) {
+        document.getElementById("result").innerText =
+            "Please enter all four measurements.";
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            "http://localhost:5000/predict",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({features: features})
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Prediction failed");
+        }
+
+        document.getElementById("result").innerHTML =
+            "Predicted Flower: " + data.prediction +
+            "<br>Confidence: " + data.confidence;
+
+    } catch (error) {
+        document.getElementById("result").innerText =
+            "Error: " + error.message;
+    }
+}
+
+async function loadHistory() {
+    try {
+        const response = await fetch(
+            "http://localhost:5000/history"
+        );
+
+        const records = await response.json();
+
+        document.getElementById("history").innerHTML =
+            records.map(record =>
+                "<p>" + record.prediction +
+                " | Confidence: " + record.confidence +
+                "</p>"
+            ).join("") || "No history available";
+
+    } catch (error) {
+        document.getElementById("history").innerText =
+            "Unable to load history";
+    }
+}
+</script>
+
+</body>
+</html>

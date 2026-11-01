@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iris-frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iris-frontend
+  template:
+    metadata:
+      labels:
+        app: iris-frontend
+    spec:
+      containers:
+        - name: iris-frontend-container
+          image: iris-frontend:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
